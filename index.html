@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>AutoDeskR by paulgovan</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>AutoDeskR</h1>
+        <h2>An R Interface to the AutoDesk APIs</h2>
+        <a href="https://github.com/paulgovan/AutoDeskR" class="button"><small>View project on</small> GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <p><img src="https://github.com/paulgovan/AutoDeskR/blob/master/inst/images/basicSample.png?raw=true" alt="AutoDeskR"></p>
+
+<h1>
+<a id="the-autodeskr-package" class="anchor" href="#the-autodeskr-package" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The AutoDeskR Package</h1>
+
+<p>AutoDeskR is an R package that provides an interface to the:</p>
+
+<ul>
+<li>Authentication API for obtaining authentication to the AutoDesk Forge Platfrom.</li>
+<li>Data Management API for managing data across the platform's cloud services. </li>
+<li>Design Automation API for performing automated tasks on model files in the cloud.</li>
+<li>Model Derivative API for translating design files into different formats, sending them to the viewer app, and extracting model data.</li>
+<li>Viewer for rendering 2D and 3D models.</li>
+</ul>
+
+<p>For more information about the AutoDesk Forge Platform, please visit <a href="https://developer.autodesk.com">https://developer.autodesk.com</a></p>
+
+<h1>
+<a id="quick-start" class="anchor" href="#quick-start" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Quick Start</h1>
+
+<p>To install AutoDeskR in <a href="https://www.r-project.org">R</a>:</p>
+
+<pre><code>devtools::install_github('paulgovan/autodeskr')
+</code></pre>
+
+<h1>
+<a id="authentication" class="anchor" href="#authentication" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Authentication</h1>
+
+<p>AutoDesk uses OAuth-based authentication for access to their services. To get started with this package, first visit the <a href="https://developer.autodesk.com/en/docs/oauth/v2/tutorials/create-app/">Create an App</a> tutorial for instructions on creating an app and getting a Client ID and Secret. </p>
+
+<p>We highly recommend that the Client ID, Secret, access tokens, and other keys be stored in a file called <code>.Renviron</code> and accessing these keys with the <code>Sys.getenv()</code> function. This way potentially sensitive information is never explicitly passed to functions in this package. For more information on storing keys in the <code>.Renviron</code> file and accessing them with <code>Sys.getenv()</code>, see the appendix in this <a href="https://cran.r-project.org/web/packages/httr/vignettes/api-packages.html">API Best Practices</a> vignette.  </p>
+
+<p>To get an access token, use the <code>getToken()</code> function, which returns an object with the <code>access_token</code>, <code>type</code>, and <code>expires_in</code> variables.:</p>
+
+<pre><code>resp &lt;- getToken(id = Sys.getenv("client_id"), secret = Sys.getenv("client_secret"))
+myToken &lt;- resp$content$access_token
+</code></pre>
+
+<h1>
+<a id="data-management" class="anchor" href="#data-management" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Data Management</h1>
+
+<h2>
+<a id="create-a-bucket-and-upload-a-file" class="anchor" href="#create-a-bucket-and-upload-a-file" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Create a Bucket and Upload a File</h2>
+
+<p>The Data Management API provides a way to store and access data on the platform. Model files are hosted in the cloud and organized into buckets. To create a bucket, first get a token with the <code>bucket:create</code>, <code>bucket:read</code>, and <code>data:write</code> scopes. </p>
+
+<pre><code>resp &lt;- getToken(id = Sys.getenv("client_id"), secret = Sys.getenv("client_secret"), 
+            scope = "bucket:create bucket:read data:write")
+myToken &lt;- resp$content$access_token
+</code></pre>
+
+<p>Then use the <code>makeBucket()</code> function to create a bucket, where <code>bucket</code> is a name for the bucket. </p>
+
+<pre><code>resp &lt;- makeBucket(token = myToken, bucket = "mybucket")
+resp
+</code></pre>
+
+<p>To check the status of a bucket:</p>
+
+<pre><code>resp &lt;- checkBucket(token = myToken, bucket = "mybucket")
+resp
+</code></pre>
+
+<p>Finally, to upload a file to the bucket, use the <code>uploadFile()</code> function, which returns an object containing the <code>bucketKey</code>, <code>objectId</code> (i.e. urn), <code>objectKey</code> (i.e. file name), <code>size</code>, <code>contentType</code> (i.e. "application/octet-stream"), <code>location</code> and other content information. Note the unique urn of the file and store it in <code>.Renviron</code> for future use. </p>
+
+<pre><code>resp &lt;- uploadFile(file = system.file("inst/samples/aerial.dwg", package = "AutoDeskR"),
+            token = myToken, bucket = "mybucket")
+myUrn &lt;- resp$content$objectId
+</code></pre>
+
+<h1>
+<a id="design-automation" class="anchor" href="#design-automation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Design Automation</h1>
+
+<h2>
+<a id="convert-a-dwg-file-to-a-pdf-file" class="anchor" href="#convert-a-dwg-file-to-a-pdf-file" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Convert a DWG File to a PDF File</h2>
+
+<p>The Design Automation API provides the ability to run automated scripts on design files. For example, to convert a DWG file to a PDF file, use the <code>makePdf</code> function, where <code>source</code> and <code>destination</code> are the publicly accessible source of the DWG file and destination for the PDF file, respectively. </p>
+
+<pre><code>mySource &lt;- "http://download.autodesk.com/us/samplefiles/acad/visualization_-_aerial.dwg"
+myDestination &lt;- "https://drive.google.com/folderview?id=0BygncDVHf60mTDZVNDltLThLNmM&amp;usp=sharing"
+resp &lt;- makePdf(mySource, myDestination, token = myToken)
+</code></pre>
+
+<p>Note that in this example, the "access_token" must be generated with the <code>code:all</code> scope.</p>
+
+<p>To check the status of the conversion process:</p>
+
+<pre><code>resp &lt;- checkPdf(mySource, myDestination, token = myToken)
+resp
+</code></pre>
+
+<h1>
+<a id="model-derivative" class="anchor" href="#model-derivative" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Model Derivative</h1>
+
+<p>The Model Derivative API enables users to translate their designs into different formats and extract valuable data.</p>
+
+<h2>
+<a id="translate-a-file-into-obj-format" class="anchor" href="#translate-a-file-into-obj-format" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Translate a File into OBJ Format</h2>
+
+<p>To translate a file into OBJ format, first get an access token with the <code>data:read</code> and <code>data:write</code> scopes.</p>
+
+<pre><code>resp &lt;- getToken(id = Sys.getenv("client_id"), secret = Sys.getenv("client_secret"), 
+            scope = "data:read data:write")
+myToken &lt;- resp$content$access_token
+</code></pre>
+
+<p>The AutoDesk platform requires that the urn of the file be Base-64 encoded. Fortunately, the <code>jsonlite</code> package has a nifty function for encoding the urn. </p>
+
+<pre><code># Here myUrn was generated from the 'uploadFile()' function
+myEncodedUrn &lt;- jsonlite::base64_enc(myUrn) 
+</code></pre>
+
+<p>Then, translate the file into OBJ format:</p>
+
+<pre><code>resp &lt;- translateObj(urn &lt;- myEncodedUrn, token = myToken)
+</code></pre>
+
+<p>To check the status of the translation process:</p>
+
+<pre><code>resp &lt;- checkFile(urn &lt;- myEncodedUrn, token = myToken)
+resp
+</code></pre>
+
+<p>To download an OBJ file locally, we need the "output_urn" of the translated file, which is different than the "urn" of the source file. In this case, use the <code>getOutputUrn()</code> function, which returns an object containing the <code>result</code>, output <code>urn</code> and other activity information.</p>
+
+<pre><code>resp &lt;- getOutputUrn(urn &lt;- myUrn, token = Sys.getenv("token"))
+resp
+</code></pre>
+
+<p>Depending on the type of file and translation process, the response may contain multiple output <code>urn</code>s for different file types (e.g. obj, svf, png). In order to find the correct OBJ file, look through the <code>resp</code> object for a <code>urn</code> than ends in ".obj" and assign this <code>urn</code> to <code>myOutputUrn</code>, similar to the following:</p>
+
+<pre><code>myOutputUrn &lt; "urn:adsk.viewing:fs.file:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bW9kZWxkZXJpdmF0aXZlL0E1LmlhbQ/output/geometry/bc3339b2-73cd-4fba-9cb3-15363703a354.obj"
+</code></pre>
+
+<p>Finally, to download the OBJ file locally:</p>
+
+<pre><code>myEncodedOutputUrn &lt;- jsonlite::base64_enc(myOutputUrn)
+resp &lt;- downloadFile(urn &lt;- myEncodedUrn, output_urn &lt;- myEncodedOutputUrn, token = myToken)
+</code></pre>
+
+<h2>
+<a id="prepare-a-file-for-the-viewer" class="anchor" href="#prepare-a-file-for-the-viewer" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Prepare a File for the Viewer</h2>
+
+<p>To prepare a file for the online viewer, first get an access token with the <code>data:read</code> and <code>data:write</code> scopes.</p>
+
+<pre><code>resp &lt;- getToken(id = Sys.getenv("client_id"), secret = Sys.getenv("client_secret"), 
+            scope = "data:read data:write")
+myToken &lt;- resp$content$access_token
+</code></pre>
+
+<p>Nex, encode the urn using the <code>jsonlite::base64_enc()</code> function. </p>
+
+<pre><code>myEncodedUrn &lt;- jsonlite::base64_enc(myUrn)
+</code></pre>
+
+<p>Then, translate the file into SVF format:</p>
+
+<pre><code>resp &lt;- translateSvf(urn &lt;- myEncodedUrn, token = myToken)
+</code></pre>
+
+<p>To check the status of the translation process:</p>
+
+<pre><code>resp &lt;- checkFile(urn &lt;- myEncodedUrn, token = myToken)
+resp
+</code></pre>
+
+<p>Finally, embed the urn of the file in the viewer, which is described in the <strong>Viewer</strong> section.</p>
+
+<h2>
+<a id="extract-data-from-a-file" class="anchor" href="#extract-data-from-a-file" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Extract Data from a File</h2>
+
+<p>To extract data from a file, follow the steps in the previous section for getting a token with the <code>data:read</code> and <code>data:write</code> scopes, encoding the <code>urn</code> of the file using the <code>jsonlite::base64_enc()</code> function, and translating the file into SVF format using the <code>translateSvf()</code> function.  Next, retrieve metadata for a file using the <code>getMetadata()</code> function, which returns an object with the <code>type</code>, <code>name</code>, and <code>guid</code> of the file. Note the <code>guid</code> and store it in <code>.Renviron</code>.</p>
+
+<pre><code>resp &lt;- getMetadata(urn &lt;- myEncodedUrn, token = myToken)
+myGuid &lt;- resp$content$data$metadata[[1]]$guid
+</code></pre>
+
+<p>Then extract data from the model with the <code>getData()</code> function.</p>
+
+<pre><code>resp &lt;- getData(guid &lt;- myGuid, urn &lt;- myEncodedUrn, token = myToken)
+</code></pre>
+
+<h2>
+<a id="extract-geometry-from-a-file" class="anchor" href="#extract-geometry-from-a-file" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Extract Geometry from a File</h2>
+
+<p>To get the object tree of a file, follow the steps in the previous section for extracting data from a file, and note the <code>guid</code> and <code>urn</code>. Then use the <code>getObjectTree()</code> function.</p>
+
+<pre><code>resp &lt;- getObjectTree(guid &lt;- myGuid, urn &lt;- myEncodedUrn, token = myToken)
+resp
+</code></pre>
+
+<h1>
+<a id="viewer" class="anchor" href="#viewer" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Viewer</h1>
+
+<p>AutoDesk provides a WebGL-based viewer for rendering 2D and 3D models. To use the viewer, make sure to first follow the instructions in <strong>Prepare a File for the Viewer</strong> above. Then simply pass the <code>urn</code> of the file and the <code>access_token</code> to the <code>viewer3D()</code> function:</p>
+
+<pre><code>viewer3D(urn = myEncodedUrn, token = myToken)
+</code></pre>
+
+<p><img src="https://github.com/paulgovan/AutoDeskR/blob/master/inst/images/aerial.png?raw=true" alt="aerial"></p>
+
+<p>And voila! We can view 2D and 3D models in R!</p>
+
+<p>The viewer can also be embedded in Shiny applications, interactive R markdown documents, and other web pages thanks to the Shiny Modules framework. Here is a simple example of a Shiny app and the <code>viewerUI()</code> function:</p>
+
+<pre><code>ui &lt;- function(request) {
+ shiny::fluidPage(
+   viewerUI("pg", myEncodedUrn, myToken)
+ )
+}
+server &lt;- function(input, output, session) {
+}
+shiny::shinyApp(ui, server)
+</code></pre>
+
+<h1>
+<a id="acknowledgements" class="anchor" href="#acknowledgements" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Acknowledgements</h1>
+
+<p>Many thanks to the developers at <a href="https://github.com/Developer-Autodesk">AutoDesk</a> for providing this great set of tools and for the support needed to learn and implement these APIs.</p>
+
+<h1>
+<a id="issues" class="anchor" href="#issues" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Issues</h1>
+
+<p>This project is in its <em>very</em> early stages. Please let us know if there are any issues using the GitHub issue tracker at <a href="https://github.com/paulgovan/AutoDeskR/issues">https://github.com/paulgovan/AutoDeskR/issues</a></p>
+
+<h1>
+<a id="contributions" class="anchor" href="#contributions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Contributions</h1>
+
+<p>Contributions are welcome by sending a <a href="https://github.com/paulgovan/AutoDeskR/pulls">pull request</a></p>
+
+<h1>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h1>
+
+<p>AutoDeskR is licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache</a> licence. © Paul Govan (2016)</p>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/paulgovan/AutoDeskR/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/paulgovan/AutoDeskR/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/paulgovan/AutoDeskR"></a> is maintained by <a href="https://github.com/paulgovan">paulgovan</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
