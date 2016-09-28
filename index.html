@@ -142,30 +142,30 @@ myEncodedUrn &lt;- jsonlite::base64_enc(myUrn)
 
 <p>Then, translate the file into OBJ format:</p>
 
-<pre><code>resp &lt;- translateObj(urn &lt;- myEncodedUrn, token = myToken)
+<pre><code>resp &lt;- translateObj(urn = myEncodedUrn, token = myToken)
 </code></pre>
 
 <p>To check the status of the translation process:</p>
 
-<pre><code>resp &lt;- checkFile(urn &lt;- myEncodedUrn, token = myToken)
+<pre><code>resp &lt;- checkFile(urn = myEncodedUrn, token = myToken)
 resp
 </code></pre>
 
-<p>To download an OBJ file locally, we need the "output_urn" of the translated file, which is different than the "urn" of the source file. In this case, use the <code>getOutputUrn()</code> function, which returns an object containing the <code>result</code>, output <code>urn</code> and other activity information.</p>
+<p>To download an OBJ file locally, we need the output <code>urn</code> of the translated file, which is different than the <code>urn</code> of the source file. In this case, use the <code>getOutputUrn()</code> function, which returns an object containing the <code>result</code>, output <code>urn</code> and other activity information.</p>
 
-<pre><code>resp &lt;- getOutputUrn(urn &lt;- myUrn, token = Sys.getenv("token"))
+<pre><code>resp &lt;- getOutputUrn(urn = myUrn, token = Sys.getenv("token"))
 resp
 </code></pre>
 
-<p>Depending on the type of file and translation process, the response may contain multiple output <code>urn</code>s for different file types (e.g. obj, svf, png). In order to find the correct OBJ file, look through the <code>resp</code> object for a <code>urn</code> than ends in ".obj" and assign this <code>urn</code> to <code>myOutputUrn</code>, similar to the following:</p>
+<p>Depending on the type of file and translation process, the response may contain multiple output <code>urn</code>s for different file types (e.g. obj, svf, png). In order to find the correct OBJ file, look through the <code>resp</code> object for a <code>urn</code> than ends in ".obj" and assign this <code>urn</code> to <code>myOutputUrn</code>, which should look similar to the following:</p>
 
 <pre><code>myOutputUrn &lt; "urn:adsk.viewing:fs.file:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bW9kZWxkZXJpdmF0aXZlL0E1LmlhbQ/output/geometry/bc3339b2-73cd-4fba-9cb3-15363703a354.obj"
 </code></pre>
 
 <p>Finally, to download the OBJ file locally:</p>
 
-<pre><code>myEncodedOutputUrn &lt;- jsonlite::base64_enc(myOutputUrn)
-resp &lt;- downloadFile(urn &lt;- myEncodedUrn, output_urn &lt;- myEncodedOutputUrn, token = myToken)
+<pre><code>myEncodedOutputUrn = jsonlite::base64_enc(myOutputUrn)
+resp &lt;- downloadFile(urn = myEncodedUrn, output_urn &lt;- myEncodedOutputUrn, token = myToken)
 </code></pre>
 
 <h2>
@@ -185,12 +185,12 @@ myToken &lt;- resp$content$access_token
 
 <p>Then, translate the file into SVF format:</p>
 
-<pre><code>resp &lt;- translateSvf(urn &lt;- myEncodedUrn, token = myToken)
+<pre><code>resp &lt;- translateSvf(urn = myEncodedUrn, token = myToken)
 </code></pre>
 
 <p>To check the status of the translation process:</p>
 
-<pre><code>resp &lt;- checkFile(urn &lt;- myEncodedUrn, token = myToken)
+<pre><code>resp &lt;- checkFile(urn = myEncodedUrn, token = myToken)
 resp
 </code></pre>
 
@@ -201,13 +201,13 @@ resp
 
 <p>To extract data from a file, follow the steps in the previous section for getting a token with the <code>data:read</code> and <code>data:write</code> scopes, encoding the <code>urn</code> of the file using the <code>jsonlite::base64_enc()</code> function, and translating the file into SVF format using the <code>translateSvf()</code> function.  Next, retrieve metadata for a file using the <code>getMetadata()</code> function, which returns an object with the <code>type</code>, <code>name</code>, and <code>guid</code> of the file. Note the <code>guid</code> and store it in <code>.Renviron</code>.</p>
 
-<pre><code>resp &lt;- getMetadata(urn &lt;- myEncodedUrn, token = myToken)
+<pre><code>resp &lt;- getMetadata(urn = myEncodedUrn, token = myToken)
 myGuid &lt;- resp$content$data$metadata[[1]]$guid
 </code></pre>
 
 <p>Then extract data from the model with the <code>getData()</code> function.</p>
 
-<pre><code>resp &lt;- getData(guid &lt;- myGuid, urn &lt;- myEncodedUrn, token = myToken)
+<pre><code>resp &lt;- getData(guid = myGuid, urn = myEncodedUrn, token = myToken)
 </code></pre>
 
 <h2>
@@ -215,7 +215,7 @@ myGuid &lt;- resp$content$data$metadata[[1]]$guid
 
 <p>To get the object tree of a file, follow the steps in the previous section for extracting data from a file, and note the <code>guid</code> and <code>urn</code>. Then use the <code>getObjectTree()</code> function.</p>
 
-<pre><code>resp &lt;- getObjectTree(guid &lt;- myGuid, urn &lt;- myEncodedUrn, token = myToken)
+<pre><code>resp &lt;- getObjectTree(guid = myGuid, urn = myEncodedUrn, token = myToken)
 resp
 </code></pre>
 
