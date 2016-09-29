@@ -108,14 +108,14 @@ myUrn &lt;- resp$content$objectId
 
 <pre><code>mySource &lt;- "http://download.autodesk.com/us/samplefiles/acad/visualization_-_aerial.dwg"
 myDestination &lt;- "https://drive.google.com/folderview?id=0BygncDVHf60mTDZVNDltLThLNmM&amp;usp=sharing"
-resp &lt;- makePdf(mySource, myDestination, token = myToken)
+resp &lt;- makePdf(source = mySource, destination = myDestination, token = myToken)
 </code></pre>
 
-<p>Note that in this example, the "access_token" must be generated with the <code>code:all</code> scope.</p>
+<p>Note that in this example, the <code>token</code> must be generated with the <code>code:all</code> scope.</p>
 
 <p>To check the status of the conversion process:</p>
 
-<pre><code>resp &lt;- checkPdf(mySource, myDestination, token = myToken)
+<pre><code>resp &lt;- checkPdf(source = mySource, destination = myDestination, token = myToken)
 resp
 </code></pre>
 
@@ -127,7 +127,7 @@ resp
 <h2>
 <a id="translate-a-file-into-obj-format" class="anchor" href="#translate-a-file-into-obj-format" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Translate a File into OBJ Format</h2>
 
-<p>To translate a file into OBJ format, first get an access token with the <code>data:read</code> and <code>data:write</code> scopes.</p>
+<p>To translate a supported file into OBJ format, first get an access token with the <code>data:read</code> and <code>data:write</code> scopes. Note that only certain types of files can be translated into OBJ format. To find out which types of files can be translated into what format, see the <a href="https://developer.autodesk.com/en/docs/model-derivative/v2/overview/supported-translations/">Supported Translation Formats Table</a>.</p>
 
 <pre><code>resp &lt;- getToken(id = Sys.getenv("client_id"), secret = Sys.getenv("client_secret"), 
             scope = "data:read data:write")
@@ -222,7 +222,7 @@ resp
 <h1>
 <a id="viewer" class="anchor" href="#viewer" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Viewer</h1>
 
-<p>AutoDesk provides a WebGL-based viewer for rendering 2D and 3D models. To use the viewer, make sure to first follow the instructions in <strong>Prepare a File for the Viewer</strong> above. Then simply pass the <code>urn</code> of the file and the <code>access_token</code> to the <code>viewer3D()</code> function:</p>
+<p>AutoDesk provides a WebGL-based viewer for rendering 2D and 3D models. To use the viewer, make sure to first follow the instructions in <strong>Prepare a File for the Viewer</strong> above. Then simply pass the <code>urn</code> of the file and the <code>token</code> to the <code>viewer3D()</code> function:</p>
 
 <pre><code>viewer3D(urn = myEncodedUrn, token = myToken)
 </code></pre>
