@@ -205,18 +205,15 @@ resp
 myGuid &lt;- resp$content$data$metadata[[1]]$guid
 </code></pre>
 
-<p>Then extract data from the model with the <code>getData()</code> function.</p>
-
-<pre><code>resp &lt;- getData(guid = myGuid, urn = myEncodedUrn, token = myToken)
-</code></pre>
-
-<h2>
-<a id="extract-geometry-from-a-file" class="anchor" href="#extract-geometry-from-a-file" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Extract Geometry from a File</h2>
-
-<p>To get the object tree of a file, follow the steps in the previous section for extracting data from a file, and note the <code>guid</code> and <code>urn</code>. Then use the <code>getObjectTree()</code> function.</p>
+<p>To get the object tree of a model, use the <code>getObjectTree()</code> function.</p>
 
 <pre><code>resp &lt;- getObjectTree(guid = myGuid, urn = myEncodedUrn, token = myToken)
 resp
+</code></pre>
+
+<p>To extract data from the model, use the <code>getData()</code> function.</p>
+
+<pre><code>resp &lt;- getData(guid = myGuid, urn = myEncodedUrn, token = myToken)
 </code></pre>
 
 <h1>
