@@ -31,7 +31,7 @@
           <p><img src="https://github.com/paulgovan/AutoDeskR/blob/master/inst/images/basicSample.png?raw=true" alt="AutoDeskR"></p>
 
 <h1>
-<a id="the-autodeskr-package" class="anchor" href="#the-autodeskr-package" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The AutoDeskR Package</h1>
+<a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Introduction</h1>
 
 <p>AutoDeskR is an R package that provides an interface to the:</p>
 
@@ -43,10 +43,17 @@
 <li>Viewer for rendering 2D and 3D models.</li>
 </ul>
 
+<p>I am writing a short <a href="https://www.gitbook.com">GitBook</a> that provides an introduction to <code>AutoDeskR</code>. Check it out at <a href="https://paulgovan.gitbooks.io/autodeskr/">paulgovan.gitbooks.io/autodeskr/</a>.</p>
+
 <h1>
 <a id="quick-start" class="anchor" href="#quick-start" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Quick Start</h1>
 
 <p>To install AutoDeskR in <a href="https://www.r-project.org">R</a>:</p>
+
+<pre><code>install.packages("AutoDeskR")
+</code></pre>
+
+<p>Or to install the development version:</p>
 
 <pre><code>devtools::install_github('paulgovan/autodeskr')
 </code></pre>
@@ -56,7 +63,7 @@
 
 <p>AutoDesk uses OAuth-based authentication for access to their services. To get started with this package, first visit the <a href="https://developer.autodesk.com/en/docs/oauth/v2/tutorials/create-app/">Create an App</a> tutorial for instructions on creating an app and getting a Client ID and Secret. </p>
 
-<p>We highly recommend that the Client ID, Secret, and access tokens be stored in a file called <code>.Renviron</code> and accessing these keys with the <code>Sys.getenv()</code> function. This way potentially sensitive information is never explicitly passed to functions in this package. For more information on storing keys in the <code>.Renviron</code> file and accessing them with <code>Sys.getenv()</code>, see the appendix in this <a href="https://CRAN.R-project.org/package=httr/vignettes/api-packages.html">API Best Practices</a> vignette.  </p>
+<p>We highly recommend that the Client ID, Secret, and access tokens be stored in a file called <code>.Renviron</code> and accessing these keys with the <code>Sys.getenv()</code> function. This step is a possible solution for preventing authentication information from being in a publicly accessible location (e.g. GitHub repo). For more information on storing keys in the <code>.Renviron</code> file and accessing them with <code>Sys.getenv()</code>, see the appendix in this <a href="https://CRAN.R-project.org/package=httr/vignettes/api-packages.html">API Best Practices</a> vignette.  </p>
 
 <p>To get an access token, use the <code>getToken()</code> function, which returns an object with the <code>access_token</code>, <code>type</code>, and <code>expires_in</code> variables.:</p>
 
@@ -67,10 +74,12 @@ myToken &lt;- resp$content$access_token
 <h1>
 <a id="data-management" class="anchor" href="#data-management" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Data Management</h1>
 
+<p>The Data Management API provides users a way to store and access data across the Forge Platform.</p>
+
 <h2>
 <a id="create-a-bucket-and-upload-a-file" class="anchor" href="#create-a-bucket-and-upload-a-file" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Create a Bucket and Upload a File</h2>
 
-<p>The Data Management API provides a way to store and access data on the platform. Model files are hosted in the cloud and organized into buckets. To create a bucket, first get a token with the <code>bucket:create</code>, <code>bucket:read</code>, and <code>data:write</code> scopes. </p>
+<p>To create a bucket, first get a token with the <code>bucket:create</code>, <code>bucket:read</code>, and <code>data:write</code> scopes. </p>
 
 <pre><code>resp &lt;- getToken(id = Sys.getenv("client_id"), secret = Sys.getenv("client_secret"), 
             scope = "bucket:create bucket:read data:write")
@@ -98,10 +107,12 @@ myUrn &lt;- resp$content$objectId
 <h1>
 <a id="design-automation" class="anchor" href="#design-automation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Design Automation</h1>
 
+<p>The Design Automation API provides users the ability to perform automated tasks on design files in the cloud.</p>
+
 <h2>
 <a id="convert-a-dwg-file-to-a-pdf-file" class="anchor" href="#convert-a-dwg-file-to-a-pdf-file" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Convert a DWG File to a PDF File</h2>
 
-<p>The Design Automation API provides the ability to run automated scripts on design files. For example, to convert a DWG file to a PDF file, use the <code>makePdf</code> function, where <code>source</code> and <code>destination</code> are the publicly accessible source of the DWG file and destination for the PDF file, respectively. </p>
+<p>To convert a DWG file to a PDF file, use the <code>makePdf</code> function, where <code>source</code> and <code>destination</code> are the publicly accessible source of the DWG file and destination for the PDF file, respectively. </p>
 
 <pre><code>mySource &lt;- "http://download.autodesk.com/us/samplefiles/acad/visualization_-_aerial.dwg"
 myDestination &lt;- "https://drive.google.com/folderview?id=0BygncDVHf60mTDZVNDltLThLNmM&amp;usp=sharing"
